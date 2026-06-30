@@ -4,6 +4,7 @@ import { getLocale } from "@/lib/i18n.server";
 import { getDictionary } from "@/lib/i18n";
 import { I18nProvider } from "@/components/I18nProvider";
 import Backdrop from "@/components/Backdrop";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "AI Shopping Truth Filter",
@@ -37,6 +38,7 @@ export default async function RootLayout({
         <Backdrop />
         <I18nProvider locale={locale} dict={dict}>
           {children}
+          <Footer />
         </I18nProvider>
       </body>
     </html>
