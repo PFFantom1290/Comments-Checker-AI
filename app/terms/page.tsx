@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = { title: "Terms of Service — Shopping Truth Filter" };
 
-const UPDATED = "30 June 2026";
+const UPDATED = "1 July 2026";
 const CONTACT = "ivanhavrylenko13@gmail.com";
 
 export default function TermsPage() {
@@ -34,20 +34,32 @@ export default function TermsPage() {
           jurisdiction.
         </p>
 
-        <h2 className="text-lg font-semibold text-white pt-2">3. Scans and credits</h2>
+        <h2 className="text-lg font-semibold text-white pt-2">3. Scans and subscriptions</h2>
         <p>
-          Each account receives a limited number of free analyses (“scans”). Additional scans can be
-          purchased in packs. Purchased scans are added to your balance, are non-transferable, have no
-          cash value, and are consumed when you run an analysis. We may change pricing or free
-          allowances for future purchases.
+          Each account receives a limited number of free lifetime analyses (“scans”). For more, you
+          can subscribe to a monthly plan that grants a set scan allowance each billing period.
+          Allowances reset at the start of each period and <strong>unused scans do not roll over</strong>;
+          they expire at the end of the period. Scans are non-transferable, have no cash value, and are
+          consumed when you run an analysis. Any credits from earlier one-time purchases remain honored
+          until used. We may change plan pricing or allowances for future billing periods.
         </p>
 
-        <h2 className="text-lg font-semibold text-white pt-2">4. Payments</h2>
+        <h2 className="text-lg font-semibold text-white pt-2">4. Payments, renewal &amp; cancellation</h2>
         <p>
           Payments are processed by our reseller and Merchant of Record, <strong>Paddle.com</strong>,
           who handles the order, billing, and related inquiries. Your purchase is subject to Paddle’s
-          buyer terms in addition to ours. Prices are shown before purchase. See our{" "}
-          <Link href="/refund" className="text-indigo-400 hover:text-indigo-300">Refund Policy</Link>.
+          buyer terms in addition to ours, and prices are shown before you subscribe.
+        </p>
+        <p>
+          Subscriptions are billed <strong>monthly in advance</strong> and{" "}
+          <strong>renew automatically</strong> at the then-current price until cancelled. You can{" "}
+          <strong>cancel at any time</strong> from the{" "}
+          <Link href="/billing" className="text-indigo-400 hover:text-indigo-300">Billing page</Link>{" "}
+          in your account, which opens Paddle’s secure customer portal. Cancelling stops future
+          renewals; your plan stays active until the end of the period you have already paid for. See
+          our{" "}
+          <Link href="/refund" className="text-indigo-400 hover:text-indigo-300">Refund &amp; Cancellation Policy</Link>{" "}
+          for details.
         </p>
 
         <h2 className="text-lg font-semibold text-white pt-2">5. Acceptable use</h2>

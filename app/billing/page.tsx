@@ -25,7 +25,7 @@ function formatDate(iso: string, locale: string) {
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ canceled?: string }>;
+  searchParams: Promise<{ canceled?: string; portal?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.email) redirect("/login");
@@ -35,7 +35,9 @@ export default async function BillingPage({
   const admin = isAdminEmail(email);
   const user = await getUserByEmail(email);
   const balance = user ? availableScans(user) : 0;
-  const canceled = (await searchParams).canceled === "1";
+  const params = await searchParams;
+  const canceled = params.canceled === "1";
+  const portalError = params.portal === "error";
 
   const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN ?? "";
 
@@ -79,6 +81,12 @@ export default async function BillingPage({
                 {fmt(t.billing.renewsOn, { date: formatDate(user.planPeriodEnd, locale) })}
               </p>
             )}
+            <a
+              href="/api/paddle/portal"
+              className="inline-block mt-3 text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
+            >
+              {t.billing.manageBilling}
+            </a>
           </div>
         ) : (
           <p className="text-gray-400 mb-6">{fmt(t.billing.youHaveTotal, { n: balance })}</p>
@@ -87,6 +95,16 @@ export default async function BillingPage({
         {canceled && (
           <div className="mb-5 bg-yellow-950/40 border border-yellow-800/50 rounded-lg px-4 py-3 text-yellow-300 text-sm">
             {t.billing.canceled}
+          </div>
+        )}
+
+        {portalError && (
+          <div className="mb-5 bg-red-950/40 border border-red-800/50 rounded-lg px-4 py-3 text-red-300 text-sm">
+            We couldn&apos;t open the subscription portal. Please try again, or email{" "}
+            <a href="mailto:ivanhavrylenko13@gmail.com" className="underline">
+              ivanhavrylenko13@gmail.com
+            </a>
+            .
           </div>
         )}
 

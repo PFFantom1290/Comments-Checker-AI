@@ -166,6 +166,7 @@ export const en = {
     renewsOn: "Renews on {date}. Unused scans reset each cycle.",
     freePlanNote: "Includes {free} free lifetime scans + {plan} plan scans this cycle.",
     subscribeNote: "Subscriptions renew monthly. Cancel anytime; your plan stays active until the end of the paid period.",
+    manageBilling: "Manage or cancel subscription",
     currentPlan: "Current plan",
     subscribe: "Subscribe",
     adminUnlimited: "You're an admin — you already have unlimited scans.",
