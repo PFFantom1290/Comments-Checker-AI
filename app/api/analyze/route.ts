@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   const { allowed, retryAfterSecs, remaining } = admin
     ? { allowed: true, retryAfterSecs: 0, remaining: -1 }
-    : checkRateLimit(ip);
+    : await checkRateLimit(ip);
 
   const rlHeaders = {
     "X-RateLimit-Remaining": admin ? "unlimited" : String(remaining),
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
   // ── Cache lookup ─────────────────────────────────────────────────────────
   // Cache hits are free — re-checking an already-analyzed product doesn't burn
   // one of the user's scans.
-  const cached = getCached(url, language);
+  const cached = await getCached(url, language);
   if (cached) {
     console.log(`[analyze] cache HIT — ${url}`);
     return NextResponse.json(cached, {
@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
     console.log(`[analyze] preview: ${reviewBlock.slice(0, 300).replace(/\n/g, " ")}`);
 
     const result = await analyzeReviews(reviewBlock, productTitle, reviewCount, language);
-    setCached(url, result, language);
+    await setCached(url, result, language);
 
     // Only consume a scan once we have a real result to show for it.
     // Admins have unlimited scans, so they're never charged.
