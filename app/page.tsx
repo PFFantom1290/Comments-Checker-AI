@@ -154,19 +154,51 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col items-center px-4 py-16">
-        <div className="text-center mb-10 max-w-2xl animate-fade-up">
-          <div className="inline-flex items-center gap-2 bg-indigo-900/40 border border-indigo-700/50 rounded-full px-4 py-1.5 text-indigo-300 text-sm font-medium mb-6">
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-            {t.home.badge}
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-glow bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
-            Shopping Truth Filter
-          </h1>
-          <p className="text-gray-400 text-lg leading-relaxed">{t.home.subtitle}</p>
-        </div>
+      <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-10 lg:py-16">
+        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
+          {/* Main column — headline + analyzer */}
+          <section className="lg:col-span-3 animate-fade-up">
+            <div className="inline-flex items-center gap-2 bg-indigo-900/40 border border-indigo-700/50 rounded-full px-4 py-1.5 text-indigo-300 text-sm font-medium mb-5">
+              <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+              {t.home.badge}
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-glow bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
+              Shopping Truth Filter
+            </h1>
+            <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-xl">{t.home.subtitle}</p>
 
-        <Analyzer initialRemaining={remaining} unlimited={admin} />
+            <Analyzer initialRemaining={remaining} unlimited={admin} />
+          </section>
+
+          {/* Sidebar — fills the space with guidance instead of leaving it empty */}
+          <aside className="lg:col-span-2 space-y-5 lg:pt-1 animate-fade-up">
+            <div className="rounded-2xl border border-gray-800 bg-gray-900/50 p-5 backdrop-blur-sm">
+              <h2 className="text-white font-semibold mb-4">{t.landing.howTitle}</h2>
+              <ul className="space-y-4">
+                {[
+                  [t.landing.how1Title, t.landing.how1Body],
+                  [t.landing.how2Title, t.landing.how2Body],
+                  [t.landing.how3Title, t.landing.how3Body],
+                ].map(([title, body], i) => (
+                  <li key={i}>
+                    <p className="text-gray-200 text-sm font-medium">{title}</p>
+                    <p className="text-gray-500 text-xs leading-relaxed mt-0.5">{body}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-gray-800 bg-gray-900/40 p-5 backdrop-blur-sm">
+              <p className="text-gray-400 text-sm leading-relaxed">{t.analyzer.supported}</p>
+              <Link
+                href="/billing"
+                className="inline-block mt-3 text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+              >
+                {t.analyzer.buyMore} →
+              </Link>
+            </div>
+          </aside>
+        </div>
       </div>
     </main>
   );

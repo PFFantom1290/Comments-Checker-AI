@@ -87,7 +87,7 @@ export const en = {
     f5: "Fake-review risk assessment",
     f6: "Bottom-line recommendation — who should buy, who should skip",
     pricingTitle: "Simple, honest pricing",
-    pricingSub: "3 free scans on sign-up. Buy more only when you need them — purchased scans never expire.",
+    pricingSub: "3 free scans when you sign up. Subscribe for a monthly scan allowance whenever you need more — cancel anytime.",
     perScan: "{c}¢ / scan",
     ctaTitle: "Ready to see what real reviewers say?",
     ctaBody: "Create your account and get 3 free scans — no card required.",
@@ -104,7 +104,7 @@ export const en = {
     errorTitle: "Analysis failed",
     tryAnother: "Try another URL",
     outTitle: "You're out of scans",
-    outBody: "Grab a scan pack to keep analyzing — packages start at $1.99 and never expire.",
+    outBody: "Subscribe to keep analyzing — plans start at $1.99/month and you can cancel anytime.",
     buyScans: "Buy scans",
     supported:
       "Works on Amazon, eBay, Walmart, Best Buy, Rozetka, Comfy, and most product pages with publicly visible reviews.",
