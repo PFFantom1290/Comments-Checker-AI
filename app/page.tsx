@@ -51,20 +51,12 @@ export default async function HomePage() {
             {t.landing.heroTitle}
           </h1>
           <p className="text-gray-400 text-lg leading-relaxed max-w-2xl mb-8">{t.landing.heroBody}</p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/register"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl px-7 py-3 transition-colors shadow-lg shadow-indigo-900/30"
-            >
-              {t.landing.tryFree}
-            </Link>
-            <Link
-              href="/login"
-              className="text-gray-300 hover:text-white border border-gray-700 hover:border-gray-500 font-medium rounded-xl px-5 py-3 transition-colors"
-            >
-              {t.landing.signIn}
-            </Link>
-          </div>
+          <Link
+            href="/register"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl px-7 py-3 transition-colors shadow-lg shadow-indigo-900/30"
+          >
+            {t.landing.tryFree}
+          </Link>
         </section>
 
         {/* How it works */}
@@ -88,7 +80,7 @@ export default async function HomePage() {
         <section className="px-4 py-16 max-w-3xl mx-auto w-full">
           <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">{t.landing.featuresTitle}</h2>
           <ul className="space-y-3">
-            {[t.landing.f1, t.landing.f2, t.landing.f3, t.landing.f4, t.landing.f5, t.landing.f6, t.landing.f7].map(
+            {[t.landing.f1, t.landing.f2, t.landing.f3, t.landing.f4, t.landing.f5, t.landing.f6].map(
               (f, i) => (
                 <li key={i} className="flex items-start gap-3 bg-gray-900/40 border border-gray-800 rounded-xl px-4 py-3">
                   <span className="text-emerald-400 mt-0.5 shrink-0">✓</span>

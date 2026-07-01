@@ -47,7 +47,16 @@ export interface AnalysisResult {
   productTitle: string;
 }
 
-const SYSTEM_PROMPT = `You are a brutally honest product-review analyst for a "Shopping Truth Filter".
+// Assembled per-request so we can inject the language directive AT THE TOP of
+// the system prompt — models obey system-level "write in Xxx" instructions far
+// more reliably than the same instruction buried in the user message.
+function buildSystemPrompt(language: string): string {
+  const langLine =
+    language && language !== "English"
+      ? `LANGUAGE (MOST IMPORTANT RULE): Write every human-readable text VALUE — pros, cons, aspect "name", aspect "detail", bestFor, watchOuts, fakeReviewReason, summary, bottomLine — in ${language}. Do NOT use English for these values. Keep the JSON KEYS in English and keep the ENUM values ("verdict", "fakeReviewRisk", each aspect "sentiment") exactly as specified in English.\n\n`
+      : "";
+
+  return `${langLine}You are a brutally honest product-review analyst for a "Shopping Truth Filter".
 Given raw customer-review text scraped from an e-commerce page, extract the real
 signal from the noise and return a thorough, structured assessment.
 
@@ -59,12 +68,12 @@ Return ONLY a valid JSON object — no markdown fences, no commentary — with E
   "sentiment": { "positive": <int>, "neutral": <int>, "negative": <int> },
   "pros": [<up to 6 concise strings, most impactful first>],
   "cons": [<up to 6 concise strings, most damaging first>],
-  "aspects": [ { "name": "<feature, e.g. Battery life / Build quality / Sizing / Value>", "sentiment": "positive"|"negative"|"mixed", "detail": "<one short sentence on what reviewers say>" } ],
+  "aspects": [ { "name": "<feature dimension>", "sentiment": "positive"|"negative"|"mixed", "detail": "<one short sentence on what reviewers say>" } ],
   "bestFor": [<up to 4 short phrases: who or which use-case this product suits>],
   "watchOuts": [<up to 4 concrete deal-breakers, defects, or warnings buyers should know>],
   "fakeReviewRisk": "low" | "medium" | "high",
   "fakeReviewReason": "<one short sentence explaining the fake-review risk>",
-  "summary": "<2-3 sentence plain-English verdict>",
+  "summary": "<2-3 sentence verdict>",
   "bottomLine": "<3-4 sentence actionable recommendation: who should buy, who should skip, and why>"
 }
 
@@ -78,6 +87,7 @@ Rules:
 - "aspects" must be the specific dimensions reviewers actually discuss — do not invent generic ones.
 - "fakeReviewRisk": judge from repetitive/generic praise, suspiciously uniform 5-stars, incentivized-review mentions, or vague language.
 - If there is too little review text to judge, set confidence 0, verdict "MIXED", ratingEstimate null, empty arrays, and explain in summary.`;
+}
 
 // ── Safe coercion helpers (the model can return anything) ────────────────────
 
@@ -130,14 +140,9 @@ export async function analyzeReviews(
   reviewCount: number | null,
   language: string = "English"
 ): Promise<AnalysisResult> {
-  // Ask the model to localize the free-text fields while keeping enum values
-  // (verdict / fakeReviewRisk / aspect sentiment) in English so our code can map them.
-  const languageDirective =
+  const reminder =
     language && language !== "English"
-      ? `\n\nIMPORTANT: Write every human-readable text value (pros, cons, summary, bottomLine, ` +
-        `aspect "name" and "detail", bestFor, watchOuts, fakeReviewReason) in ${language}. ` +
-        `Keep the JSON keys and the enum values (verdict, fakeReviewRisk, and each aspect "sentiment") ` +
-        `in English exactly as specified.`
+      ? `\n\nReminder: write all text values in ${language}, not English.`
       : "";
 
   const userMessage = `Product: ${productTitle}
@@ -147,14 +152,14 @@ ${reviewCount ? `Approximate review count on page: ${reviewCount}` : ""}
 ${reviewBlock}
 --- REVIEW CONTENT END ---
 
-Analyze the reviews above and return the JSON assessment.${languageDirective}`;
+Analyze the reviews above and return the JSON assessment.${reminder}`;
 
   const completion = await getClient().chat.completions.create({
     model: "gpt-4o-mini",
     temperature: 0.2, // low temp = consistent, factual extraction
     max_tokens: 1500, // room for the richer structured output
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: buildSystemPrompt(language) },
       { role: "user", content: userMessage },
     ],
     response_format: { type: "json_object" }, // forces valid JSON, no fences
