@@ -15,6 +15,18 @@ function normalize(email: string) {
   return email.trim().toLowerCase();
 }
 
+function readSubId(txn: unknown): string | null {
+  const t = txn as { subscriptionId?: string | null; subscription_id?: string | null };
+  return t.subscriptionId ?? t.subscription_id ?? null;
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// Paddle provisions the subscription ~10s AFTER billing the transaction, so we
+// may need to wait for the transaction→subscription link. Give the function
+// room to poll (Vercel caps server work; default is too short for this wait).
+export const maxDuration = 30;
+
 // Paddle redirects here as /billing/success?_ptxn={transaction_id} after payment.
 // We look up the transaction, follow it to the subscription it created, and
 // activate the user's plan as a fallback in case the webhook is delayed.
@@ -41,15 +53,20 @@ export default async function BillingSuccessPage({
     try {
       const paddle = getPaddle();
       // Follow txn → subscription. Subscriptions carry the recurring plan info.
-      const txn = await paddle.transactions.get(txnId);
-      const subId =
-        (txn as unknown as { subscriptionId?: string | null; subscription_id?: string | null })
-          .subscriptionId ??
-        (txn as unknown as { subscription_id?: string | null }).subscription_id ??
-        null;
+      // For a recurring price Paddle bills the transaction first and links the
+      // subscription a moment later, so subscription_id can still be null right
+      // after checkout.completed. Retry briefly to let Paddle catch up.
+      // Paddle's provisioning gap is ~10s in practice; poll a bit past that.
+      let subId = readSubId(await paddle.transactions.get(txnId));
+      for (let i = 0; i < 15 && !subId; i++) {
+        await sleep(1200);
+        subId = readSubId(await paddle.transactions.get(txnId));
+      }
 
       if (!subId) {
-        error = "This purchase isn't tied to a subscription.";
+        // Recurring purchase, but the subscription hasn't been provisioned yet.
+        // Not an error — the webhook activates it. Show a pending message.
+        error = "Your subscription is being set up. If you were charged, it will activate in a moment — refresh this page shortly.";
       } else {
         const sub = (await paddle.subscriptions.get(subId)) as unknown as PaddleSubLike;
         const info = extractSubscription(sub);
