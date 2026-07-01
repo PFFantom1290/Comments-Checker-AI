@@ -2,7 +2,7 @@
 //
 //   npm run db:setup
 //
-// Creates the `users` table (idempotent) and seeds any ADMIN_EMAILS accounts
+// Creates/migrates the tables (idempotent) and seeds any ADMIN_EMAILS accounts
 // with the password from ADMIN_SEED_PASSWORD so they can sign in immediately.
 // Reads env from .env.local via Node's --env-file flag (see package.json).
 
@@ -22,21 +22,30 @@ console.log("Connecting to Neon…");
 
 await sql`
   CREATE TABLE IF NOT EXISTS users (
-    id            TEXT PRIMARY KEY,
-    email         TEXT UNIQUE NOT NULL,
-    name          TEXT,
-    password_hash TEXT,
-    provider      TEXT NOT NULL DEFAULT 'credentials',
-    scans_used    INTEGER NOT NULL DEFAULT 0,
-    scan_credits  INTEGER NOT NULL DEFAULT 0,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    id                TEXT PRIMARY KEY,
+    email             TEXT UNIQUE NOT NULL,
+    name              TEXT,
+    password_hash     TEXT,
+    provider          TEXT NOT NULL DEFAULT 'credentials',
+    scans_used        INTEGER NOT NULL DEFAULT 0,
+    scan_credits      INTEGER NOT NULL DEFAULT 0,
+    plan              TEXT,
+    plan_scans_used   INTEGER NOT NULL DEFAULT 0,
+    plan_scans_limit  INTEGER NOT NULL DEFAULT 0,
+    plan_period_end   TIMESTAMPTZ,
+    subscription_id   TEXT,
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
   )`;
-// Idempotent migration for databases created before scan_credits existed.
-await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS scan_credits INTEGER NOT NULL DEFAULT 0`;
+// Idempotent migrations for pre-existing databases.
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS scan_credits     INTEGER NOT NULL DEFAULT 0`;
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS plan             TEXT`;
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_scans_used  INTEGER NOT NULL DEFAULT 0`;
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_scans_limit INTEGER NOT NULL DEFAULT 0`;
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_period_end  TIMESTAMPTZ`;
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_id  TEXT`;
 console.log("✓ users table ready");
 
-// Purchases — one row per paid Stripe checkout. The UNIQUE session_id makes
-// crediting idempotent (webhook + success page can both fire safely).
+// Purchases — kept for legacy one-time purchases; unused going forward but harmless.
 await sql`
   CREATE TABLE IF NOT EXISTS purchases (
     id           TEXT PRIMARY KEY,

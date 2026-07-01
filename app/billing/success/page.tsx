@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getPaddle, extractPurchase, isPaidStatus, type PaddleTxnLike } from "@/lib/paddle";
-import { recordAndCreditPurchase, getUserByEmail, availableScans } from "@/lib/users";
+import {
+  getPaddle,
+  extractSubscription,
+  isActiveSubStatus,
+  type PaddleSubLike,
+} from "@/lib/paddle";
+import { activateSubscription, getUserByEmail, availableScans } from "@/lib/users";
 import { getI18n } from "@/lib/i18n.server";
 import { fmt } from "@/lib/i18n";
 
@@ -11,6 +16,8 @@ function normalize(email: string) {
 }
 
 // Paddle redirects here as /billing/success?_ptxn={transaction_id} after payment.
+// We look up the transaction, follow it to the subscription it created, and
+// activate the user's plan as a fallback in case the webhook is delayed.
 export default async function BillingSuccessPage({
   searchParams,
 }: {
@@ -19,38 +26,65 @@ export default async function BillingSuccessPage({
   const session = await auth();
   if (!session?.user?.email) redirect("/login");
 
-  const { t } = await getI18n();
+  const { t, locale } = await getI18n();
   const txnId = (await searchParams)._ptxn;
   let ok = false;
+  let planName = "";
   let scans = 0;
   let balance: number | null = null;
+  let periodEnd: string | null = null;
   let error = "";
 
   if (!txnId) {
     error = "Missing transaction reference.";
   } else {
     try {
-      const txn = (await getPaddle().transactions.get(txnId)) as unknown as PaddleTxnLike;
-      const purchase = extractPurchase(txn);
+      const paddle = getPaddle();
+      // Follow txn → subscription. Subscriptions carry the recurring plan info.
+      const txn = await paddle.transactions.get(txnId);
+      const subId =
+        (txn as unknown as { subscriptionId?: string | null; subscription_id?: string | null })
+          .subscriptionId ??
+        (txn as unknown as { subscription_id?: string | null }).subscription_id ??
+        null;
 
-      if (!isPaidStatus(txn.status)) {
-        error = "Your payment hasn't completed yet. If you were charged, your scans will appear shortly.";
-      } else if (!purchase) {
-        error = "We couldn't read this purchase. If you were charged, your scans will be added.";
-      } else if (normalize(purchase.email) !== normalize(session.user.email)) {
-        error = "This receipt belongs to a different account.";
+      if (!subId) {
+        error = "This purchase isn't tied to a subscription.";
       } else {
-        scans = purchase.scans;
-        await recordAndCreditPurchase(purchase);
-        const u = await getUserByEmail(purchase.email);
-        balance = u ? availableScans(u) : null;
-        ok = true;
+        const sub = (await paddle.subscriptions.get(subId)) as unknown as PaddleSubLike;
+        const info = extractSubscription(sub);
+
+        if (!info) {
+          error = "We couldn't read your subscription. If you were charged, it will still take effect shortly.";
+        } else if (normalize(info.email) !== normalize(session.user.email)) {
+          error = "This receipt belongs to a different account.";
+        } else if (!isActiveSubStatus(info.status)) {
+          error = "Your subscription hasn't activated yet. If you were charged, it will appear shortly.";
+        } else {
+          await activateSubscription({
+            email: info.email,
+            subscriptionId: info.subscriptionId,
+            plan: info.plan.id,
+            scansLimit: info.plan.scans,
+            periodEnd: info.periodEnd,
+          });
+          planName = info.plan.name;
+          scans = info.plan.scans;
+          periodEnd = info.periodEnd.toISOString();
+          const u = await getUserByEmail(info.email);
+          balance = u ? availableScans(u) : null;
+          ok = true;
+        }
       }
     } catch (e) {
       console.error("[billing/success] error:", e);
-      error = "We couldn't verify your payment. If you were charged, your scans will still be added.";
+      error = "We couldn't verify your subscription. If you were charged, it will still take effect.";
     }
   }
+
+  const readableEnd = periodEnd
+    ? new Date(periodEnd).toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" })
+    : "";
 
   return (
     <main className="min-h-screen text-gray-100 flex items-center justify-center px-4 py-16">
@@ -58,10 +92,23 @@ export default async function BillingSuccessPage({
         {ok ? (
           <>
             <div className="text-5xl mb-4">✅</div>
-            <h1 className="text-2xl font-bold mb-2">{t.success.successTitle}</h1>
+            <h1 className="text-2xl font-bold mb-2">{t.success.subActiveTitle}</h1>
             <p className="text-gray-400">
-              {fmt(t.success.added, { n: scans })}
-              {balance != null && <> {fmt(t.success.youNow, { n: balance })}</>}
+              {fmt(t.success.subActiveBody, { plan: planName, scans })}
+              {balance != null && (
+                <>
+                  {" "}
+                  {fmt(t.success.youNow, { n: balance })}
+                </>
+              )}
+              {readableEnd && (
+                <>
+                  <br />
+                  <span className="text-gray-500 text-sm">
+                    {fmt(t.success.renewsOn, { date: readableEnd })}
+                  </span>
+                </>
+              )}
             </p>
           </>
         ) : (
@@ -80,7 +127,7 @@ export default async function BillingSuccessPage({
             {t.success.start}
           </Link>
           <Link href="/billing" className="text-sm text-indigo-400 hover:text-indigo-300">
-            {t.success.buyMore}
+            {t.success.manage}
           </Link>
         </div>
       </div>

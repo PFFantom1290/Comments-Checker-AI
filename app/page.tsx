@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { getUserByEmail, availableScans, isAdminEmail } from "@/lib/users";
 import { getI18n } from "@/lib/i18n.server";
 import { fmt } from "@/lib/i18n";
-import { SCAN_PACKAGES } from "@/lib/paddle";
+import { PLANS } from "@/lib/paddle";
 import Analyzer from "@/components/Analyzer";
 import UserMenu from "@/components/UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -16,7 +16,7 @@ export default async function HomePage() {
   // Payment providers reject sites that gate their entire homepage behind auth;
   // this page is a real product description with pricing, features, and CTAs.
   if (!session?.user?.email) {
-    const packages = Object.values(SCAN_PACKAGES);
+    const plans = Object.values(PLANS);
     return (
       <main className="min-h-screen text-gray-100 flex flex-col">
         <header className="w-full border-b border-gray-800/60 backdrop-blur-sm">
@@ -96,7 +96,7 @@ export default async function HomePage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-2">{t.landing.pricingTitle}</h2>
           <p className="text-gray-400 text-center mb-8">{t.landing.pricingSub}</p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {packages.map((p) => (
+            {plans.map((p) => (
               <div
                 key={p.id}
                 className="lift relative bg-gray-900/60 border border-gray-700/70 rounded-2xl p-5 backdrop-blur-sm"
@@ -106,14 +106,16 @@ export default async function HomePage() {
                     {p.tag}
                   </span>
                 )}
-                <div className="flex items-baseline gap-1.5">
+                <p className="text-white font-semibold">{p.name}</p>
+                <div className="mt-1 flex items-baseline gap-1.5">
                   <span className="text-2xl font-bold text-white">{p.scans}</span>
-                  <span className="text-gray-400 text-sm">scans</span>
+                  <span className="text-gray-400 text-sm">{t.billing.scansPerMonth}</span>
                 </div>
-                <div className="mt-1 flex items-baseline gap-2">
+                <div className="mt-1 flex items-baseline gap-1.5">
                   <span className="text-xl font-semibold text-indigo-300">${(p.priceCents / 100).toFixed(2)}</span>
-                  <span className="text-gray-500 text-xs">{fmt(t.landing.perScan, { c: (p.priceCents / p.scans).toFixed(1) })}</span>
+                  <span className="text-gray-500 text-xs">{t.billing.perMonth}</span>
                 </div>
+                <p className="text-gray-600 text-[11px] mt-1">{fmt(t.landing.perScan, { c: (p.priceCents / p.scans).toFixed(1) })}</p>
               </div>
             ))}
           </div>
