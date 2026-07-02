@@ -5,9 +5,10 @@ let _client: OpenAI | null = null;
 
 function getClient(): OpenAI {
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error(
-      "OPENAI_API_KEY is not set. Copy .env.local.example to .env.local and add your key."
-    );
+    // Detailed hint goes to the server log only — the thrown message is
+    // forwarded to the user's error card by the analyze route.
+    console.error("[analyzer] OPENAI_API_KEY is not set — add it to .env.local / Vercel env.");
+    throw new Error("The analysis service isn't available right now. Please try again later.");
   }
   if (!_client) {
     _client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

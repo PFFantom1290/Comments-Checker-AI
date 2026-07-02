@@ -55,8 +55,8 @@ export default function Analyzer({
       } catch {
         throw new Error(
           res.ok
-            ? "Server returned an unexpected response. Check the terminal for details."
-            : `Server error (${res.status}). Check the terminal — common causes: OPENAI_API_KEY missing in .env.local, or a crash in the API route.`
+            ? "We received an unexpected response. Please try again."
+            : `Something went wrong on our side (error ${res.status}). Please try again in a moment.`
         );
       }
 

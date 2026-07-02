@@ -174,10 +174,9 @@ async function scrapeViaJina(url: string): Promise<string> {
 async function scrapeViaScraperAPI(url: string): Promise<string> {
   const key = process.env.SCRAPERAPI_KEY;
   if (!key) {
-    throw new Error(
-      "This site requires bypassing bot-protection. " +
-        "Add SCRAPERAPI_KEY to .env.local (free at scraperapi.com) to enable Amazon support."
-    );
+    // Config problem — dev hint stays in the server log; users get a neutral message.
+    console.error("[scraper] SCRAPERAPI_KEY is not set — bot-protected sites can't be scraped.");
+    throw new Error("We couldn't read this site's reviews right now. Please try a different product page.");
   }
 
   // wait=5000 gives the headless browser 5s after page load to finish AJAX calls.
@@ -191,12 +190,16 @@ async function scrapeViaScraperAPI(url: string): Promise<string> {
   const timer = setTimeout(() => controller.abort(), SCRAPER_TIMEOUT_MS);
   try {
     const res = await fetch(apiUrl, { signal: controller.signal });
-    if (!res.ok) throw abortError(`ScraperAPI returned ${res.status}: ${res.statusText}`);
+    if (!res.ok) {
+      // Vendor detail → server log; the thrown message reaches the user's error card.
+      console.error(`[scraper] ScraperAPI returned ${res.status}: ${res.statusText}`);
+      throw abortError("We couldn't load the product page. Please try again in a moment.");
+    }
     const html = await res.text();
     return htmlToMarkdown(html);
   } catch (err) {
     if ((err as Error).name === "AbortError") {
-      throw abortError("ScraperAPI request timed out — site may be unreachable");
+      throw abortError("The site took too long to respond. Please try again.");
     }
     throw err;
   } finally {

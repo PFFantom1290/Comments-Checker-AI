@@ -204,13 +204,22 @@ export default async function HomePage() {
             </ol>
           </aside>
 
-          {/* Right rail — coverage + billing */}
+          {/* Right rail — what every scan includes */}
           <aside className="xl:col-start-3 xl:row-start-1 xl:pt-28 animate-fade-up">
-            <div className="h-px w-8 bg-indigo-500/50 mb-4" aria-hidden />
-            <p className="text-gray-400 text-sm leading-relaxed">{t.analyzer.supported}</p>
+            <h2 className="text-gray-500 text-xs font-semibold uppercase tracking-widest mb-4">
+              {t.landing.featuresTitle}
+            </h2>
+            <ul className="space-y-3">
+              {[t.landing.f1, t.landing.f2, t.landing.f5].map((f, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="text-emerald-400 mt-0.5 shrink-0 text-sm">✓</span>
+                  <span className="text-gray-400 text-sm leading-relaxed">{f}</span>
+                </li>
+              ))}
+            </ul>
             <Link
               href="/billing"
-              className="inline-block mt-4 text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+              className="inline-block mt-5 text-sm text-indigo-400 hover:text-indigo-300 font-medium"
             >
               {t.analyzer.buyMore} →
             </Link>
