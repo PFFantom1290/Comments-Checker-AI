@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Privacy Policy — Shopping Truth Filter" };
+export const metadata = { title: "Privacy Policy — ReviewX" };
 
 const UPDATED = "30 June 2026";
 const CONTACT = "ivanhavrylenko13@gmail.com";
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
         <p className="text-gray-500">Last updated: {UPDATED}</p>
 
         <p>
-          This policy explains what data Shopping Truth Filter (the “Service”) collects and how we use
+          This policy explains what data ReviewX (the “Service”) collects and how we use
           it. We aim to collect only what we need to run the Service.
         </p>
 

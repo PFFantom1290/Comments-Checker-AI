@@ -106,28 +106,43 @@ export default function Analyzer({
         )}
       </div>
 
-      {/* Input form */}
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-2xl flex flex-col sm:flex-row gap-3 mb-10"
-      >
-        <input
-          ref={inputRef}
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://www.amazon.com/dp/..."
-          required
-          disabled={state === "loading" || outOfScans}
-          className="flex-1 bg-gray-900/80 border border-gray-700 rounded-xl px-4 py-3 text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition"
-        />
-        <button
-          type="submit"
-          disabled={state === "loading" || !url.trim() || outOfScans}
-          className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl px-7 py-3 transition-colors whitespace-nowrap shadow-lg shadow-indigo-900/30"
+      {/* Input form — one prominent bar with the action inside */}
+      <form onSubmit={handleSubmit} className="w-full max-w-2xl mb-10">
+        <div
+          className={`flex items-center gap-2 rounded-2xl border bg-gray-900/80 p-2 pl-4 transition
+            border-gray-700 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/40
+            ${state === "loading" || outOfScans ? "opacity-60" : "shadow-lg shadow-indigo-950/30"}`}
         >
-          {state === "loading" ? t.analyzer.analyzing : t.analyzer.analyze}
-        </button>
+          <svg
+            className="w-5 h-5 shrink-0 text-gray-500"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden
+          >
+            <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
+            <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
+          </svg>
+          <input
+            ref={inputRef}
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://www.amazon.com/dp/..."
+            aria-label="Product URL"
+            required
+            disabled={state === "loading" || outOfScans}
+            className="flex-1 min-w-0 bg-transparent py-3 text-gray-100 placeholder-gray-600 focus:outline-none disabled:cursor-not-allowed"
+          />
+          <button
+            type="submit"
+            disabled={state === "loading" || !url.trim() || outOfScans}
+            className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl px-5 sm:px-7 py-3 transition-colors whitespace-nowrap"
+          >
+            {state === "loading" ? t.analyzer.analyzing : t.analyzer.analyze}
+          </button>
+        </div>
       </form>
 
       {/* Out of scans */}
@@ -171,10 +186,6 @@ export default function Analyzer({
         </div>
       )}
 
-      {/* Supported sites note */}
-      {state === "idle" && !outOfScans && (
-        <p className="text-gray-600 text-sm mt-4 text-center max-w-xl">{t.analyzer.supported}</p>
-      )}
     </>
   );
 }

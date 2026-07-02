@@ -56,7 +56,7 @@ function buildSystemPrompt(language: string): string {
       ? `LANGUAGE (MOST IMPORTANT RULE): Write every human-readable text VALUE — pros, cons, aspect "name", aspect "detail", bestFor, watchOuts, fakeReviewReason, summary, bottomLine — in ${language}. Do NOT use English for these values. Keep the JSON KEYS in English and keep the ENUM values ("verdict", "fakeReviewRisk", each aspect "sentiment") exactly as specified in English.\n\n`
       : "";
 
-  return `${langLine}You are a brutally honest product-review analyst for a "Shopping Truth Filter".
+  return `${langLine}You are a brutally honest product-review analyst for "ReviewX".
 Given raw customer-review text scraped from an e-commerce page, extract the real
 signal from the noise and return a thorough, structured assessment.
 

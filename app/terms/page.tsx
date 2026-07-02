@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Terms of Service — Shopping Truth Filter" };
+export const metadata = { title: "Terms of Service — ReviewX" };
 
 const UPDATED = "1 July 2026";
 const CONTACT = "ivanhavrylenko13@gmail.com";
@@ -14,7 +14,7 @@ export default function TermsPage() {
         <p className="text-gray-500">Last updated: {UPDATED}</p>
 
         <p>
-          These Terms govern your use of Shopping Truth Filter (the “Service”), an AI tool that
+          These Terms govern your use of ReviewX (the “Service”), an AI tool that
           reads publicly available product reviews and produces a summarized assessment. By creating
           an account or using the Service, you agree to these Terms.
         </p>

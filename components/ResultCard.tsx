@@ -243,7 +243,9 @@ export default function ResultCard({ result, onReset }: Props) {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-gray-800">
-        <p className="text-gray-600 text-xs">Powered by Jina AI Reader + GPT-4o mini</p>
+        <p className="text-gray-600 text-xs">
+          Review<span className="text-indigo-400/70">X</span> AI
+        </p>
         <button onClick={onReset} className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
           ← {t.result.analyzeAnother}
         </button>

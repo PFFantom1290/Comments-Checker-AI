@@ -29,7 +29,7 @@ const PLANS = [
 console.log(`Creating catalog in Paddle (${isProd ? "production" : "sandbox"})…`);
 
 const product = await paddle.products.create({
-  name: "Shopping Truth Filter — Subscriptions",
+  name: "ReviewX — Subscriptions",
   taxCategory: "standard",
   description: "Monthly plans for AI review analysis.",
 });

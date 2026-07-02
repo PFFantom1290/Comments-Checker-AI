@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Refund Policy — Shopping Truth Filter" };
+export const metadata = { title: "Refund Policy — ReviewX" };
 
 const UPDATED = "1 July 2026";
 const CONTACT = "ivanhavrylenko13@gmail.com";
@@ -14,7 +14,7 @@ export default function RefundPage() {
         <p className="text-gray-500">Last updated: {UPDATED}</p>
 
         <p>
-          Shopping Truth Filter is offered as a monthly subscription. Each plan gives you a set number
+          ReviewX is offered as a monthly subscription. Each plan gives you a set number
           of AI review analyses (“scans”) per billing period. This policy explains how billing works,
           how to cancel, and when refunds are available.
         </p>

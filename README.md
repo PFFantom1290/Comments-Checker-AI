@@ -1,4 +1,4 @@
-# AI Shopping Truth Filter
+# ReviewX
 
 Paste any product URL → it reads the **real customer reviews** (scraping past bot
 protection) and returns a plain **Buy / Don't Buy / Mixed** verdict with pros,

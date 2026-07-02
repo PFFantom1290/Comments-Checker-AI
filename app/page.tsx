@@ -5,8 +5,20 @@ import { getI18n } from "@/lib/i18n.server";
 import { fmt } from "@/lib/i18n";
 import { PLANS } from "@/lib/paddle";
 import Analyzer from "@/components/Analyzer";
+import Brand from "@/components/Brand";
 import UserMenu from "@/components/UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+
+function Header({ children }: { children: React.ReactNode }) {
+  return (
+    <header className="w-full border-b border-gray-800/60 backdrop-blur-sm">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <Brand className="text-lg" />
+        <div className="flex items-center gap-3">{children}</div>
+      </div>
+    </header>
+  );
+}
 
 export default async function HomePage() {
   const { t } = await getI18n();
@@ -19,26 +31,21 @@ export default async function HomePage() {
     const plans = Object.values(PLANS);
     return (
       <main className="min-h-screen text-gray-100 flex flex-col">
-        <header className="w-full border-b border-gray-800/60 backdrop-blur-sm">
-          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <span className="font-semibold tracking-tight text-gray-200">Shopping Truth Filter</span>
-            <div className="flex items-center gap-3">
-              <LanguageSwitcher />
-              <Link
-                href="/login"
-                className="text-sm text-gray-300 hover:text-white border border-gray-700 hover:border-gray-500 rounded-lg px-3 py-1.5 transition-colors"
-              >
-                {t.landing.signIn}
-              </Link>
-              <Link
-                href="/register"
-                className="hidden sm:inline-block bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg px-3 py-1.5 transition-colors"
-              >
-                {t.landing.getStarted}
-              </Link>
-            </div>
-          </div>
-        </header>
+        <Header>
+          <LanguageSwitcher />
+          <Link
+            href="/login"
+            className="text-sm text-gray-300 hover:text-white border border-gray-700 hover:border-gray-500 rounded-lg px-3 py-1.5 transition-colors"
+          >
+            {t.landing.signIn}
+          </Link>
+          <Link
+            href="/register"
+            className="hidden sm:inline-block bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg px-3 py-1.5 transition-colors"
+          >
+            {t.landing.getStarted}
+          </Link>
+        </Header>
 
         {/* Hero */}
         <section className="px-4 py-20 flex flex-col items-center text-center animate-fade-up">
@@ -142,61 +149,71 @@ export default async function HomePage() {
   const user = await getUserByEmail(email);
   const remaining = user ? availableScans(user) : 0;
 
+  const steps: Array<[string, string]> = [
+    [t.landing.how1Title, t.landing.how1Body],
+    [t.landing.how2Title, t.landing.how2Body],
+    [t.landing.how3Title, t.landing.how3Body],
+  ];
+
   return (
     <main className="min-h-screen text-gray-100 flex flex-col">
-      <header className="w-full border-b border-gray-800/60 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <span className="font-semibold tracking-tight text-gray-200">Shopping Truth Filter</span>
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <UserMenu email={email} />
-          </div>
-        </div>
-      </header>
+      <Header>
+        <LanguageSwitcher />
+        <UserMenu email={email} />
+      </Header>
 
-      <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-10 lg:py-16">
-        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
-          {/* Main column — headline + analyzer */}
-          <section className="lg:col-span-3 animate-fade-up">
-            <div className="inline-flex items-center gap-2 bg-indigo-900/40 border border-indigo-700/50 rounded-full px-4 py-1.5 text-indigo-300 text-sm font-medium mb-5">
+      {/*
+        Sketch layout: big centered brand + one prominent input bar, with the
+        side space carrying light guidance rails instead of sitting empty.
+        DOM order keeps the analyzer first for screen readers; at xl the rails
+        move alongside it via explicit grid placement.
+      */}
+      <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-12 lg:py-20">
+        <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,46rem)_minmax(0,1fr)] xl:gap-8 items-start">
+          {/* Center — hero + analyzer */}
+          <section className="md:col-span-2 xl:col-span-1 xl:col-start-2 xl:row-start-1 flex flex-col items-center text-center animate-fade-up">
+            <div className="inline-flex items-center gap-2 bg-indigo-900/40 border border-indigo-700/50 rounded-full px-4 py-1.5 text-indigo-300 text-sm font-medium mb-6">
               <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
               {t.home.badge}
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-glow bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
-              Shopping Truth Filter
+            <h1 className="text-5xl sm:text-6xl mb-4">
+              <Brand hero asLink={false} />
             </h1>
-            <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-xl">{t.home.subtitle}</p>
+            <p className="text-gray-400 text-lg leading-relaxed max-w-xl mb-10">{t.home.subtitle}</p>
 
             <Analyzer initialRemaining={remaining} unlimited={admin} />
           </section>
 
-          {/* Sidebar — fills the space with guidance instead of leaving it empty */}
-          <aside className="lg:col-span-2 space-y-5 lg:pt-1 animate-fade-up">
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/50 p-5 backdrop-blur-sm">
-              <h2 className="text-white font-semibold mb-4">{t.landing.howTitle}</h2>
-              <ul className="space-y-4">
-                {[
-                  [t.landing.how1Title, t.landing.how1Body],
-                  [t.landing.how2Title, t.landing.how2Body],
-                  [t.landing.how3Title, t.landing.how3Body],
-                ].map(([title, body], i) => (
-                  <li key={i}>
-                    <p className="text-gray-200 text-sm font-medium">{title}</p>
-                    <p className="text-gray-500 text-xs leading-relaxed mt-0.5">{body}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Left rail — how it works */}
+          <aside className="xl:col-start-1 xl:row-start-1 xl:pt-28 animate-fade-up">
+            <h2 className="text-gray-500 text-xs font-semibold uppercase tracking-widest mb-4">
+              {t.landing.howTitle}
+            </h2>
+            <ol className="space-y-5">
+              {steps.map(([title, body], i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-indigo-900/50 border border-indigo-700/50 text-indigo-300 text-xs font-semibold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="text-gray-200 text-sm font-medium leading-snug">{title.replace(/^\d+\.\s*/, "")}</p>
+                    <p className="text-gray-500 text-xs leading-relaxed mt-1">{body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </aside>
 
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/40 p-5 backdrop-blur-sm">
-              <p className="text-gray-400 text-sm leading-relaxed">{t.analyzer.supported}</p>
-              <Link
-                href="/billing"
-                className="inline-block mt-3 text-sm text-indigo-400 hover:text-indigo-300 font-medium"
-              >
-                {t.analyzer.buyMore} →
-              </Link>
-            </div>
+          {/* Right rail — coverage + billing */}
+          <aside className="xl:col-start-3 xl:row-start-1 xl:pt-28 animate-fade-up">
+            <div className="h-px w-8 bg-indigo-500/50 mb-4" aria-hidden />
+            <p className="text-gray-400 text-sm leading-relaxed">{t.analyzer.supported}</p>
+            <Link
+              href="/billing"
+              className="inline-block mt-4 text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+            >
+              {t.analyzer.buyMore} →
+            </Link>
           </aside>
         </div>
       </div>
