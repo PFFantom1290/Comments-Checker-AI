@@ -11,6 +11,11 @@
     "paddle:setup": "node --env-file=.env.local scripts/paddle-setup.mjs",
     "paddle:check": "node --env-file=.env.local scripts/paddle-check.mjs"
   },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.10"
+    }
+  },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@paddle/paddle-js": "^1.6.4",
