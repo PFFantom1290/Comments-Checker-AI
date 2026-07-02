@@ -7,7 +7,7 @@ import Backdrop from "@/components/Backdrop";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://comments-checker-ai.vercel.app"),
+  metadataBase: new URL("https://reviewx.tech"),
   title: "ReviewX — AI review analysis",
   description:
     "Paste any product URL and get an instant Buy / Don't Buy verdict based on real customer reviews — powered by AI.",
