@@ -34,7 +34,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // quota can be tracked just like password accounts.
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
-        await upsertOAuthUser({ email: user.email, name: user.name ?? null });
+        // An unhandled throw here surfaces NextAuth's opaque "server
+        // configuration" error page, so a transient DB hiccup (serverless
+        // cold start, Neon blip) used to break Google login entirely.
+        // Retry once, then deny cleanly instead of crashing.
+        for (let attempt = 1; ; attempt++) {
+          try {
+            await upsertOAuthUser({ email: user.email, name: user.name ?? null });
+            break;
+          } catch (err) {
+            console.error(`[auth] upsertOAuthUser failed (attempt ${attempt}):`, err);
+            if (attempt >= 2) return false;
+            await new Promise((r) => setTimeout(r, 400));
+          }
+        }
       }
       return true;
     },
