@@ -9,7 +9,8 @@
     "lint": "next lint",
     "db:setup": "node --env-file=.env.local scripts/db-setup.mjs",
     "paddle:setup": "node --env-file=.env.local scripts/paddle-setup.mjs",
-    "paddle:check": "node --env-file=.env.local scripts/paddle-check.mjs"
+    "paddle:check": "node --env-file=.env.local scripts/paddle-check.mjs",
+    "paddle:golive": "node scripts/paddle-golive.mjs"
   },
   "overrides": {
     "next": {
